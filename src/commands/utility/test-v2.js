@@ -1,3 +1,4 @@
+
 // src/commands/utility/test-v2.js
 import {
     SlashCommandBuilder,
@@ -5,7 +6,6 @@ import {
     ButtonBuilder,
     ButtonStyle,
     SectionBuilder,
-    ActionRowBuilder,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
     ThumbnailBuilder,
@@ -13,7 +13,7 @@ import {
     MediaGalleryBuilder,
     MediaGalleryItemBuilder,
     SeparatorBuilder,
-    SeparatorSpacing,
+    SeparatorSpacingSize,
     ContainerBuilder,
     MessageFlags,
 } from 'discord.js';
@@ -41,20 +41,17 @@ export async function execute(interaction) {
                         ),
                 )
                 .addTextDisplayComponents(
-                    new TextDisplayBuilder().setContent("\nBotões Padrão em ActionRow:"),
+                    new TextDisplayBuilder().setContent("\nBotões Padrão:"),
                 )
-                .addActionRowComponents(
-                    new ActionRowBuilder()
-                        .addComponents(
-                            new ButtonBuilder()
-                                .setStyle(ButtonStyle.Link)
-                                .setLabel("Link Externo")
-                                .setURL("https://discord.js.org/"),
-                            new ButtonBuilder()
-                                .setStyle(ButtonStyle.Primary)
-                                .setLabel("Botão Primário")
-                                .setCustomId("v2_primary_button"),
-                        ),
+                .addButtonComponents( // USO CORRETO: Adiciona botões diretamente
+                    new ButtonBuilder()
+                        .setStyle(ButtonStyle.Link)
+                        .setLabel("Link Externo")
+                        .setURL("https://discord.js.org/"),
+                    new ButtonBuilder()
+                        .setStyle(ButtonStyle.Primary)
+                        .setLabel("Botão Primário")
+                        .setCustomId("v2_primary_button"),
                 )
                 .addSectionComponents(
                     new SectionBuilder()
@@ -67,25 +64,22 @@ export async function execute(interaction) {
                             new TextDisplayBuilder().setContent("Selecione uma ou mais opções."),
                         ),
                 )
-                .addActionRowComponents(
-                    new ActionRowBuilder()
-                        .addComponents(
-                            new StringSelectMenuBuilder()
-                                .setCustomId("v2_select_menu")
-                                .setPlaceholder("Escolha uma opção...")
-                                .setMaxValues(2)
-                                .addOptions(
-                                    new StringSelectMenuOptionBuilder()
-                                        .setLabel("Opção A")
-                                        .setValue("option_a")
-                                        .setDescription("Descrição da Opção A")
-                                        .setEmoji({ name: "🇦" }),
-                                    new StringSelectMenuOptionBuilder()
-                                        .setLabel("Opção B")
-                                        .setValue("option_b")
-                                        .setDescription("Descrição da Opção B")
-                                        .setEmoji({ name: "🇧" }),
-                                ),
+                .addStringSelectMenuComponents( // USO CORRETO: Adiciona o menu diretamente
+                    new StringSelectMenuBuilder()
+                        .setCustomId("v2_select_menu")
+                        .setPlaceholder("Escolha uma opção...")
+                        .setMaxValues(2)
+                        .addOptions(
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Opção A")
+                                .setValue("option_a")
+                                .setDescription("Descrição da Opção A")
+                                .setEmoji({ name: "🇦" }),
+                            new StringSelectMenuOptionBuilder()
+                                .setLabel("Opção B")
+                                .setValue("option_b")
+                                .setDescription("Descrição da Opção B")
+                                .setEmoji({ name: "🇧" }),
                         ),
                 )
                 .addTextDisplayComponents(
@@ -101,7 +95,7 @@ export async function execute(interaction) {
                         ),
                 )
                 .addSeparatorComponents(
-                    new SeparatorBuilder().setSpacing(SeparatorSpacing.Small).setDivider(true),
+                    new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
                 )
                  .addTextDisplayComponents(
                     new TextDisplayBuilder().setContent("Fim do teste."),
@@ -116,7 +110,10 @@ export async function execute(interaction) {
     } catch (error) {
         console.error('Erro ao executar o comando /test-v2:', error);
         if (!interaction.replied) {
-            await interaction.reply({ content: 'Ocorreu um erro ao tentar enviar os componentes V2. Verifique os logs.', ephemeral: true });
+            await interaction.reply({
+                content: 'Ocorreu um erro ao tentar enviar os componentes V2. Verifique os logs.',
+                ephemeral: true
+            });
         }
     }
 }
