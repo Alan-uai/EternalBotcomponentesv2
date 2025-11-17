@@ -1,6 +1,6 @@
 // src/interactions/buttons/dungeonconfig.js
 import { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import { doc, updateDoc, getDoc, collection, query, where, getDocs, deleteDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, collection, query, where, getDocs, deleteDoc, arrayUnion, arrayRemove, setDoc } from 'firebase/firestore';
 import { initializeFirebase } from '../../firebase/index.js';
 import { getAvailableRaids } from '../../utils/raid-data.js';
 import { execute as executeDungeonConfig } from '../../commands/utility/dungeonconfig.js';
@@ -60,7 +60,7 @@ async function openSolingSettingsModal(interaction) {
                     .setPlaceholder('Sempre enviar o link acima?')
                     .setOptions([
                         { label: 'Sim', value: 'sim', default: settings.alwaysSendLink === true },
-                        { label: 'Não', value: 'nao', default: settings.alwaysSendLink === false }
+                        { label: 'Não', value: 'nao', default: settings.alwaysSendLink !== true }
                     ])
             ),
             new ActionRowBuilder().addComponents(
