@@ -4,7 +4,6 @@ import { doc, updateDoc, getDoc, collection, query, where, getDocs, deleteDoc, a
 import { initializeFirebase } from '../../firebase/index.js';
 import { getAvailableRaids } from '../../utils/raid-data.js';
 import { execute as executeDungeonConfig } from '../../commands/utility/dungeonconfig.js';
-import { createModal } from '@magicyan/discord';
 
 
 // Adicionando a constante que estava faltando
