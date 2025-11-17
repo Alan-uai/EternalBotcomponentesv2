@@ -102,7 +102,7 @@ export async function execute(interaction) {
         ];
 
         await interaction.reply({
-            flags: [MessageFlags.SuppressEmbeds],
+            flags: [MessageFlags.IsComponentsV2],
             components: componentsV2,
         });
 
