@@ -47,7 +47,7 @@ async function openSolingSettingsModal(interaction) {
     const userSnap = await getDoc(userRef);
     const settings = userSnap.exists() ? userSnap.data().dungeonSettings || {} : {};
 
-    const modal = createModal({
+    const modal = new ModalBuilder({
         customId: SOLING_MODAL_ID,
         title: 'Configurações de /soling',
         components: [
