@@ -1,4 +1,3 @@
-
 // src/commands/utility/test-v2.js
 import {
     SlashCommandBuilder,
@@ -43,7 +42,7 @@ export async function execute(interaction) {
                 .addTextDisplayComponents(
                     new TextDisplayBuilder().setContent("\nBotões Padrão:"),
                 )
-                .addButtonComponents( // USO CORRETO: Adiciona botões diretamente
+                .addButtonComponents(
                     new ButtonBuilder()
                         .setStyle(ButtonStyle.Link)
                         .setLabel("Link Externo")
@@ -64,7 +63,7 @@ export async function execute(interaction) {
                             new TextDisplayBuilder().setContent("Selecione uma ou mais opções."),
                         ),
                 )
-                .addStringSelectMenuComponents( // USO CORRETO: Adiciona o menu diretamente
+                .addStringSelectMenuComponents(
                     new StringSelectMenuBuilder()
                         .setCustomId("v2_select_menu")
                         .setPlaceholder("Escolha uma opção...")
@@ -103,7 +102,7 @@ export async function execute(interaction) {
         ];
 
         await interaction.reply({
-            flags: [MessageFlags.IsComponentV2],
+            flags: [MessageFlags.SuppressEmbeds],
             components: componentsV2,
         });
 
