@@ -1,70 +1,61 @@
 // src/commands/utility/test-v2.js
+import { createContainer } from '@magicyan/discord';
 import {
     SlashCommandBuilder,
-    TextDisplayBuilder,
     ButtonBuilder,
     ButtonStyle,
-    SectionBuilder,
     StringSelectMenuBuilder,
-    StringSelectMenuOptionBuilder,
-    ThumbnailBuilder,
-    FileBuilder,
-    MediaGalleryBuilder,
-    MediaGalleryItemBuilder,
-    SeparatorBuilder,
-    SeparatorSpacingSize,
-    ContainerBuilder,
-    MessageFlags,
+    StringSelectMenuOptionBuilder
 } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
     .setName('test-v2')
-    .setDescription('Testa o envio de componentes V2 avançados.')
+    .setDescription('Testa o envio de componentes avançados com @magicyan/discord.')
     .setDefaultMemberPermissions(0); // Admin only
 
 export async function execute(interaction) {
     try {
-        const componentsV2 = [
-            new ContainerBuilder()
-                .setAccentColor(0x8CBF92) // Verde claro
-                .addSectionComponents(
-                    new SectionBuilder()
-                        .setButtonAccessory(
-                            new ButtonBuilder()
-                                .setStyle(ButtonStyle.Secondary)
-                                .setLabel("Acessório de Botão")
-                                .setCustomId("v2_accessory_button")
-                        )
-                        .addTextDisplayComponents(
-                            new TextDisplayBuilder().setContent("**Componentes V2 - Teste Prático**"),
-                        ),
-                )
-                .addTextDisplayComponents(
-                    new TextDisplayBuilder().setContent("\nBotões Padrão:"),
-                )
-                .addButtonComponents(
-                    new ButtonBuilder()
-                        .setStyle(ButtonStyle.Link)
-                        .setLabel("Link Externo")
-                        .setURL("https://discord.js.org/"),
-                    new ButtonBuilder()
-                        .setStyle(ButtonStyle.Primary)
-                        .setLabel("Botão Primário")
-                        .setCustomId("v2_primary_button"),
-                )
-                .addSectionComponents(
-                    new SectionBuilder()
-                        .setThumbnailAccessory(
-                            new ThumbnailBuilder()
-                                .setURL("https://i.imgur.com/AfFp7pu.png") // Ícone do Discord.js
-                        )
-                        .addTextDisplayComponents(
-                            new TextDisplayBuilder().setContent("\nMenus de Seleção:"),
-                            new TextDisplayBuilder().setContent("Selecione uma ou mais opções."),
-                        ),
-                )
-                .addStringSelectMenuComponents(
-                    new StringSelectMenuBuilder()
+        const container = createContainer({
+            embeds: [{
+                title: 'Teste de Componentes com @magicyan/discord',
+                description: 'Esta mensagem demonstra a estrutura criada com `createContainer`.',
+                color: 0x8CBF92 // Verde claro
+            }],
+            components: [
+                // Seção com botão como acessório
+                {
+                    type: 'section',
+                    accessory: new ButtonBuilder()
+                        .setStyle(ButtonStyle.Secondary)
+                        .setLabel("Botão Acessório")
+                        .setCustomId("v2_accessory_button"),
+                    text: {
+                        main: '**Seção com Acessório**',
+                        secondary: 'Este é um texto secundário na seção.'
+                    }
+                },
+                // Botões normais
+                {
+                    type: 'buttons',
+                    components: [
+                        new ButtonBuilder()
+                            .setStyle(ButtonStyle.Link)
+                            .setLabel("Link Externo")
+                            .setURL("https://discord.js.org/"),
+                        new ButtonBuilder()
+                            .setStyle(ButtonStyle.Primary)
+                            .setLabel("Botão Primário")
+                            .setCustomId("v2_primary_button"),
+                    ]
+                },
+                // Seção com menu de seleção
+                {
+                    type: 'section',
+                    text: {
+                        main: '**Menu de Seleção**',
+                        secondary: 'Selecione uma ou mais opções abaixo.'
+                    },
+                    selectMenu: new StringSelectMenuBuilder()
                         .setCustomId("v2_select_menu")
                         .setPlaceholder("Escolha uma opção...")
                         .setMaxValues(2)
@@ -80,37 +71,37 @@ export async function execute(interaction) {
                                 .setDescription("Descrição da Opção B")
                                 .setEmoji({ name: "🇧" }),
                         ),
-                )
-                .addTextDisplayComponents(
-                    new TextDisplayBuilder().setContent("\nGaleria de Mídia:"),
-                )
-                .addMediaGalleryComponents(
-                    new MediaGalleryBuilder()
-                        .addItems(
-                            new MediaGalleryItemBuilder()
-                                .setURL("https://i.imgur.com/AfFp7pu.png"), // Logo 1
-                            new MediaGalleryItemBuilder()
-                                .setURL("https://i.imgur.com/r3tG6s5.png"), // Logo 2
-                        ),
-                )
-                .addSeparatorComponents(
-                    new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
-                )
-                 .addTextDisplayComponents(
-                    new TextDisplayBuilder().setContent("Fim do teste."),
-                ),
-        ];
-
-        await interaction.reply({
-            flags: [MessageFlags.IsComponentsV2],
-            components: componentsV2,
+                },
+                // Galeria de Mídia
+                {
+                    type: 'section',
+                    text: { main: '**Galeria de Mídia**' }
+                },
+                {
+                    type: 'gallery',
+                    images: [
+                        "https://i.imgur.com/AfFp7pu.png", // Logo Discord.js
+                        "https://i.imgur.com/r3tG6s5.png"  // Outro logo
+                    ]
+                },
+                // Separador
+                {
+                    type: 'separator'
+                },
+                {
+                    type: 'section',
+                    text: { main: 'Fim do teste.' }
+                }
+            ]
         });
+
+        await interaction.reply(container);
 
     } catch (error) {
         console.error('Erro ao executar o comando /test-v2:', error);
-        if (!interaction.replied) {
+        if (!interaction.replied && !interaction.deferred) {
             await interaction.reply({
-                content: 'Ocorreu um erro ao tentar enviar os componentes V2. Verifique os logs.',
+                content: 'Ocorreu um erro ao tentar enviar os componentes. Verifique os logs.',
                 ephemeral: true
             });
         }
