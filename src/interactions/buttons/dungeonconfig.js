@@ -4,6 +4,8 @@ import { doc, updateDoc, getDoc, collection, query, where, getDocs, deleteDoc, a
 import { initializeFirebase } from '../../firebase/index.js';
 import { getAvailableRaids } from '../../utils/raid-data.js';
 import { execute as executeDungeonConfig } from '../../commands/utility/dungeonconfig.js';
+import { createModal } from '@magicyan/discord';
+
 
 // Adicionando a constante que estava faltando
 const DUNGEON_CONFIG_PREFIX = 'dungeonconfig';
@@ -45,32 +47,37 @@ async function openSolingSettingsModal(interaction) {
     const userSnap = await getDoc(userRef);
     const settings = userSnap.exists() ? userSnap.data().dungeonSettings || {} : {};
 
-    const modal = new ModalBuilder().setCustomId(SOLING_MODAL_ID).setTitle('Configurações de /soling');
+    const modal = createModal({
+        customId: SOLING_MODAL_ID,
+        title: 'Configurações de /soling',
+        components: [
+            new ActionRowBuilder().addComponents(
+                new TextInputBuilder().setCustomId('server_link').setLabel("Link do seu servidor privado (Opcional)").setStyle(TextInputStyle.Short).setValue(settings.serverLink || '').setRequired(false)
+            ),
+             new ActionRowBuilder().addComponents(
+                new StringSelectMenuBuilder()
+                    .setCustomId('always_send')
+                    .setPlaceholder('Sempre enviar o link acima?')
+                    .setOptions([
+                        { label: 'Sim', value: 'sim', default: settings.alwaysSendLink === true },
+                        { label: 'Não', value: 'nao', default: settings.alwaysSendLink === false }
+                    ])
+            ),
+            new ActionRowBuilder().addComponents(
+                 new TextInputBuilder().setCustomId('delete_after').setLabel("Apagar post após X minutos (opcional)").setStyle(TextInputStyle.Short).setPlaceholder("Deixe em branco para não apagar").setValue(String(settings.deleteAfterMinutes || '')).setRequired(false)
+            )
+        ]
+    });
     
-    modal.addComponents(
-        new ActionRowBuilder().addComponents(
-            new TextInputBuilder().setCustomId('server_link').setLabel("Link do seu servidor privado (Opcional)").setStyle(TextInputStyle.Short).setValue(settings.serverLink || '').setRequired(false)
-        ),
-        new ActionRowBuilder().addComponents(
-            new TextInputBuilder().setCustomId('always_send').setLabel("Sempre enviar o link acima? (sim/não)").setStyle(TextInputStyle.Short).setValue(settings.alwaysSendLink ? 'sim' : 'não').setRequired(true)
-        ),
-        new ActionRowBuilder().addComponents(
-             new TextInputBuilder().setCustomId('delete_after').setLabel("Apagar post após X minutos (opcional)").setStyle(TextInputStyle.Short).setPlaceholder("Deixe em branco para não apagar").setValue(String(settings.deleteAfterMinutes || '')).setRequired(false)
-        )
-    );
     await interaction.showModal(modal);
 }
 
 async function handleSolingSettingsSubmit(interaction) {
     await interaction.deferReply({ ephemeral: true });
     const serverLink = interaction.fields.getTextInputValue('server_link');
-    const alwaysSend = interaction.fields.getTextInputValue('always_send').toLowerCase();
+    const alwaysSend = interaction.fields.getString('always_send'); // Usando getString para menus no modal do magicyan
     const deleteAfterStr = interaction.fields.getTextInputValue('delete_after');
 
-    if (alwaysSend !== 'sim' && alwaysSend !== 'não') {
-        return interaction.editReply({ content: 'Valor inválido para "Sempre enviar o link?". Por favor, use "sim" ou "não".' });
-    }
-    
     const deleteAfter = parseInt(deleteAfterStr, 10);
     if (deleteAfterStr && (isNaN(deleteAfter) || deleteAfter <= 0)) {
         return interaction.editReply({ content: 'O tempo para apagar deve ser um número positivo de minutos.' });
@@ -86,7 +93,14 @@ async function handleSolingSettingsSubmit(interaction) {
     };
 
     try {
-        await updateDoc(userRef, { dungeonSettings: settings });
+        // Assegura que o perfil exista antes de atualizar
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()){
+            await updateDoc(userRef, { dungeonSettings: settings });
+        } else {
+            await setDoc(userRef, { dungeonSettings: settings }, { merge: true });
+        }
+        
         await interaction.editReply('Suas configurações de /soling foram salvas com sucesso!');
     } catch (error) {
         console.error("Erro ao salvar configurações de /soling:", error);
